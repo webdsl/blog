@@ -9,7 +9,7 @@ access control rules
   
   rule template showAttachment(a: Attachment) { a.mayView() }
   rule template attachmentActions(a: Attachment) { a.mayEdit() }
-  rule ajaxtemplate editAttachment(a: Attachment) { a.mayEdit() }
+//  rule ajaxtemplate editAttachment(a: Attachment) { a.mayEdit() }
   rule page editAttachment(a: Attachment) { a.mayEdit() }
 
 section attachments
