@@ -11,7 +11,7 @@ section blog
       obj.put("title", title);
       //obj.put("about", about);
       obj.put("description", description);
-      obj.put("modified", modified);
+      obj.put("modified", modified.toString());
       return obj;
     }
   }
@@ -36,8 +36,8 @@ section post
       obj.put("contentHTML", content/*.format()*/);
       obj.put("extended", extended);
       obj.put("extendedHTML", extended/*.format()*/);
-      obj.put("created", created);
-      obj.put("modified", modified);
+      obj.put("created", created.toString());
+      obj.put("modified", modified.toString());
       return obj;
     }
   } 

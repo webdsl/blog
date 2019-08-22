@@ -2,3 +2,6 @@
 .webdsl-fragment-cache
 .sass-cache
 .webdsl-parsecache
+.cache
+.dependencies.webdsl
+.saved-but-not-built
