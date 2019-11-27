@@ -28,7 +28,7 @@ section main wiki page
 				}
 			"---\n"
 			
-      "~wiki.content\n"
+      "~toProperMarkdown(wiki.content)\n"
     }
   }
   
@@ -60,8 +60,8 @@ section main wiki page
 			    "- ~u.fullname\n"
 			  }
 			"---\n"
-			"~post.content\n\n"
-			"~post.extended\n\n"
+			"~toProperMarkdown(post.content)\n\n"
+			"~toProperMarkdown(post.extended)\n\n"
     }
   }
   
@@ -75,4 +75,31 @@ section main wiki page
     }
     
     return seenYears;
+  }
+  
+  function toProperMarkdown(s : String) : String {   
+    var replacedWikiLinks := /\[\[wiki\(([^\)]*)\)\|([^\]]*)\]\] /.replaceAll("[$2](/$1/)", s);
+    var replacedPostLinks := replacedWikiLinks;
+    
+    var list := replacedWikiLinks.split("[[post(");
+    
+    if (list.length > 0) {
+	    for (x in list) {
+	      if (list.indexOf(x) > 0) {
+	        
+	        // Extract key of post from markdown link
+	        var postKey := x.split(")").get(0);
+	        var p := findPost(postKey);
+	        
+	        // Construct the correct url
+	        var postJekyllUrl := url("/blog/" + p.created.format("yyyy/MM/dd") + "/" + p.urlTitle + "/");
+	        postJekyllUrl := ( /%..[\-]?/.replaceAll("", postJekyllUrl) );
+	        
+	        // Replace the webdsl post link with a proper markdown link to a post
+	        replacedPostLinks := /\[\[post\(\d+\)\|([^\]]*)\]\]/.replaceFirst("[$1](~postJekyllUrl)", replacedPostLinks);
+	      }
+	    } 
+    }
+    
+    return replacedPostLinks;
   }
