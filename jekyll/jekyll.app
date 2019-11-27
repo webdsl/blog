@@ -101,5 +101,7 @@ section main wiki page
 	    } 
     }
     
-    return replacedPostLinks;
+    var replacedVerbatimHtml := /<\/?verbatim>/.replaceAll("```", replacedPostLinks);
+    
+    return replacedVerbatimHtml;
   }
