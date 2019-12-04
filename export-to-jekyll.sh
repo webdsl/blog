@@ -3,9 +3,11 @@
 EXPORTDIRNAME=jekyll-export
 EXPORTDIR=$PWD/$EXPORTDIRNAME
 EXPORTDIRWIKI=$EXPORTDIR/wiki
-EXPORTDIRBLOG=$EXPORTDIR/blog/_posts
+EXPORTDIRBLOGPOSTS=$EXPORTDIR/blog/_posts
+EXPORTDIRBLOGDRAFTS=$EXPORTDIR/blog/_drafts
 EXPORTWIKIURL="http://localhost:8080/blog/jekyllwiki/"
-EXPORTBLOGURL="http://localhost:8080/blog/jekyllblog/"
+EXPORTBLOGPOSTSURL="http://localhost:8080/blog/jekyllpost/"
+EXPORTBLOGDRAFTSURL="http://localhost:8080/blog/jekylldraft/"
 
 echo "saving export in directory $EXPORTDIR"
 
@@ -21,7 +23,8 @@ fi
 rm "$EXPORTDIR.zip"
 
 mkdir $EXPORTDIRWIKI
-mkdir -p $EXPORTDIRBLOG    
+mkdir -p $EXPORTDIRBLOGPOSTS    
+mkdir -p $EXPORTDIRBLOGDRAFTS
 
 echo "exporting wiki"
 
@@ -37,11 +40,9 @@ do
     # Trim last 3 characters because of the %3A in all wiki group names
     wikigroupname=${wikigroupnametemp::${#wikigroupnametemp}-3}
 
-    if [ -z "$wikigroupname" ]; then
-        wikigroupname="index"
+    if [ -n "$wikigroupname" ]; then
+	    echo "\texporting WikiGroup $wikigroupname"
     fi
-
-	echo "\texporting WikiGroup $wikigroupname"
 
     mkdir $EXPORTDIRWIKI/$wikigroupname
     
@@ -54,21 +55,25 @@ do
         prefix="$wikigrouppage/$wikigroupnametemp"
         wikiname=${wikipage#$prefix}
         
-
         if [ -z "$wikiname" ]; then
             wikiname="index"
         fi
-        echo "\t\texporting wiki $wikigroupname/$wikiname"
 
-        wget --output-document=$EXPORTDIRWIKI/$wikigroupname/$wikiname.md $wikipage -q
+        if [ -z "$wikigroupname" ]; then
+            echo "\texporting index"
+            wget --output-document=$EXPORTDIRWIKI/index.md $wikipage -q
+        else
+            echo "\t\texporting wiki $wikigroupname/$wikiname"
+            wget --output-document=$EXPORTDIRWIKI/$wikigroupname/$wikiname.md $wikipage -q
+        fi
 
     done
 done
 
 echo ""
-echo "exporting blog"
+echo "exporting blog posts"
 
-postyearpagesraw=$(wget $EXPORTBLOGURL -q -O -)
+postyearpagesraw=$(wget $EXPORTBLOGPOSTSURL -q -O -)
 IFS=$'\n' 
 read -rd '' -a postyearpages <<<"$postyearpagesraw"
 
@@ -79,7 +84,7 @@ do
 
     echo "\texporting blog posts year $postyear"
 
-    mkdir $EXPORTDIRBLOG/$postyear
+    mkdir $EXPORTDIRBLOGPOSTS/$postyear
     
     # Process the pages of the wikigroup
     postpagesraw=$(wget $postyearpage -q -O -)
@@ -90,8 +95,23 @@ do
         postname=${postpage##*/}
         echo "\t\texporting post $postname"
 
-        wget --output-document=$EXPORTDIRBLOG/$postyear/$postname.md $postpage -q
+        wget --output-document=$EXPORTDIRBLOGPOSTS/$postyear/$postname.md $postpage -q
     done
+done
+
+echo ""
+echo "exporting blog drafts"
+
+draftpagesraw=$(wget $EXPORTBLOGDRAFTSURL -q -O -)
+IFS=$'\n' 
+read -rd '' -a draftpages <<<"$draftpagesraw"
+
+for draftpage in "${draftpages[@]}"
+do
+    draftname=${draftpage##*/}
+    echo "\t\texporting draft $draftname"
+
+    wget --output-document=$EXPORTDIRBLOGDRAFTS/$draftname.md $draftpage -q
 done
 
 # Set delimiter back to standard value

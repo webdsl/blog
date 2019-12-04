@@ -14,4 +14,7 @@ imports blog/serendipity
 
 imports blog/blog-service
 
-imports jekyll/jekyll
+imports jekyll/jekyll-drafts
+imports jekyll/jekyll-posts
+imports jekyll/jekyll-utils
+imports jekyll/jekyll-wiki
